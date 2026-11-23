@@ -406,11 +406,6 @@ function obtenerTextoNormalizado(
     );
 }
 
-
-// ==========================================================
-// DECIDIR SI MOSTRAR NORMALIZACION
-// ==========================================================
-
 // ==========================================================
 // DECIDIR SI MOSTRAR NORMALIZACION
 // ==========================================================
@@ -419,9 +414,34 @@ function debeMostrarNormalizacion(
     original
 ) {
 
-    // Mostramos INTERPRETADO solamente cuando
-    // encontramos caracteres que el traductor
-    // necesita reemplazar.
+    // ------------------------------------------------------
+    // INTERPRETADO solamente aparece cuando encontramos
+    // un caracter que realmente reemplazamos.
+    //
+    // Ejemplos:
+    //
+    // Hola
+    //     -> no
+    //
+    // hola
+    //     -> no
+    //
+    // mañana
+    //     -> no
+    //        La Ñ es soportada directamente.
+    //
+    // Iván
+    //     -> si
+    //
+    // está
+    //     -> si
+    //
+    // pingüino
+    //     -> si
+    //
+    // No consideramos el simple cambio de minuscula a
+    // mayuscula como motivo para mostrar INTERPRETADO.
+    // ------------------------------------------------------
 
     const caracteresNormalizados =
         /[áÁéÉíÍóÓúÚüÜàÀèÈìÌòÒùÙâÂêÊîÎôÔûÛäÄëËïÏöÖ]/;
@@ -432,15 +452,21 @@ function debeMostrarNormalizacion(
     );
 }
 
+
 // ==========================================================
 // RENDERIZAR HISTORIAL
 // ==========================================================
 
 function renderizarHistorial() {
 
+    // ------------------------------------------------------
+    // SIN ACTIVIDAD
+    // ------------------------------------------------------
+
     if (!historial.length) {
 
         ui.historial.innerHTML = (
+
             '<div class="historial-vacio">'
             +
             "Todavía no hay mensajes en esta sesión."
@@ -452,34 +478,55 @@ function renderizarHistorial() {
     }
 
 
+    // ------------------------------------------------------
+    // CON ACTIVIDAD
+    // ------------------------------------------------------
+
     ui.historial.innerHTML = (
+
         historial.map(
 
             evento => {
 
+                // ==========================================
+                // TEXTO ORIGINAL
+                // ==========================================
+
                 const original = (
+
                     obtenerTextoOriginal(
                         evento
                     )
                 );
 
 
+                // ==========================================
+                // TEXTO NORMALIZADO
+                // ==========================================
+
                 const normalizado = (
+
                     obtenerTextoNormalizado(
                         evento
                     )
                 );
 
 
+                // ==========================================
+                // SABER SI REALMENTE NECESITAMOS MOSTRAR
+                // "INTERPRETADO:"
+                // ==========================================
+
                 const mostrarNormalizado = (
-    debeMostrarNormalizacion(
-        original
-    )
-);
+
+                    debeMostrarNormalizacion(
+                        original
+                    )
+                );
 
 
                 // ==========================================
-                // BLOQUE DE NORMALIZACION
+                // BLOQUE OPCIONAL DE INTERPRETACION
                 // ==========================================
 
                 let bloqueNormalizacion = "";
@@ -492,7 +539,7 @@ function renderizarHistorial() {
                         <div class="evento-normalizado">
 
                             <span class="evento-etiqueta">
-                                INTERPRETADO
+                                INTERPRETADO:
                             </span>
 
                             <span>
@@ -508,7 +555,28 @@ function renderizarHistorial() {
 
 
                 // ==========================================
-                // EVENTO
+                // EVENTO COMPLETO
+                // ==========================================
+                //
+                // IMPORTANTE:
+                //
+                // No mostramos "ORIGINAL:" como una
+                // etiqueta separada.
+                //
+                // El mensaje original vuelve a mostrarse
+                // como lo hacia el dashboard inicialmente.
+                //
+                // Ejemplo normal:
+                //
+                // Hola
+                // MORSE: .... --- .-.. .-
+                //
+                // Ejemplo con acento:
+                //
+                // Iván
+                // INTERPRETADO: IVAN
+                // MORSE: .. ...- .- -.
+                //
                 // ==========================================
 
                 return `
@@ -525,6 +593,7 @@ function renderizarHistorial() {
                         <div
                             class="
                                 evento-origen
+
                                 ${
                                     evento.origen
                                     === "PLACA"
@@ -551,30 +620,34 @@ function renderizarHistorial() {
                         <div class="evento-texto">
 
 
-                            <div class="evento-original">
+                            <!-- ========================= -->
+                            <!-- MENSAJE ORIGINAL          -->
+                            <!-- ========================= -->
 
-                                <span class="evento-etiqueta">
-                                    ORIGINAL
-                                </span>
+                            <strong>
 
-                                <strong>
+                                ${escaparHtml(
+                                    original
+                                )}
 
-                                    ${escaparHtml(
-                                        original
-                                    )}
+                            </strong>
 
-                                </strong>
 
-                            </div>
-
+                            <!-- ========================= -->
+                            <!-- INTERPRETACION OPCIONAL   -->
+                            <!-- ========================= -->
 
                             ${bloqueNormalizacion}
 
 
+                            <!-- ========================= -->
+                            <!-- MORSE                     -->
+                            <!-- ========================= -->
+
                             <div class="evento-morse">
 
                                 <span class="evento-etiqueta">
-                                    MORSE
+                                    MORSE:
                                 </span>
 
                                 <code>
