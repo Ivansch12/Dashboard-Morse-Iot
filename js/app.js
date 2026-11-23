@@ -411,30 +411,26 @@ function obtenerTextoNormalizado(
 // DECIDIR SI MOSTRAR NORMALIZACION
 // ==========================================================
 
+// ==========================================================
+// DECIDIR SI MOSTRAR NORMALIZACION
+// ==========================================================
+
 function debeMostrarNormalizacion(
-    original,
-    normalizado
+    original
 ) {
 
-    // ------------------------------------------------------
-    // No queremos mostrar:
-    //
-    // Original:
-    // HOLA
-    //
-    // Interpretado:
-    // HOLA
-    //
-    // porque seria redundante.
-    //
-    // Solo aparece cuando hay una diferencia real.
-    // ------------------------------------------------------
+    // Mostramos INTERPRETADO solamente cuando
+    // encontramos caracteres que el traductor
+    // necesita reemplazar.
 
-    return (
-        original !== normalizado
+    const caracteresNormalizados =
+        /[áÁéÉíÍóÓúÚüÜàÀèÈìÌòÒùÙâÂêÊîÎôÔûÛäÄëËïÏöÖ]/;
+
+
+    return caracteresNormalizados.test(
+        original
     );
 }
-
 
 // ==========================================================
 // RENDERIZAR HISTORIAL
@@ -476,11 +472,10 @@ function renderizarHistorial() {
 
 
                 const mostrarNormalizado = (
-                    debeMostrarNormalizacion(
-                        original,
-                        normalizado
-                    )
-                );
+    debeMostrarNormalizacion(
+        original
+    )
+);
 
 
                 // ==========================================
